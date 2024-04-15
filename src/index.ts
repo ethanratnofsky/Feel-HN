@@ -1,12 +1,14 @@
+import { Comment } from "./types";
+
 /**
  * Creates a comment tree from an array of comments.
  *
- * @param {Array} comments - The array of comments.
- * @returns {Array} - The comment tree.
+ * @param {Comment[]} comments - The array of comments.
+ * @returns {Comment[]} - The comment tree.
  */
-const createCommentTree = (comments) => {
-    const commentTree = []; // Initialize an empty array to store the comment tree
-    const stack = []; // Initialize an empty stack to keep track of parent comments
+const createCommentTree = (comments: Comment[]): Comment[] => {
+    const commentTree: Comment[] = []; // Initialize an empty array to store the comment tree
+    const stack: Comment[] = []; // Initialize an empty stack to keep track of parent comments
 
     for (const comment of comments) {
         const currentIndent = comment.indent;
@@ -29,22 +31,27 @@ const createCommentTree = (comments) => {
     return commentTree; // Return the comment tree
 };
 
-const main = () => {
+const main = (): void => {
     // Get the item ID
     const params = new URLSearchParams(window.location.search);
     const itemId = params.get("id");
 
     if (!itemId) {
-        console.log("[Feel HN] No item ID was found.");
+        console.warn("[Feel HN] No item ID found.");
         return;
     }
 
     // Get the post node
     const postNode = document.querySelector("table.fatitem");
 
+    if (!postNode) {
+        console.warn("[Feel HN] No post node found.");
+        return;
+    }
+
     // Parse the OP and the post content
-    const op = postNode.querySelector(".hnuser")?.textContent;
-    const postContent = postNode.querySelector(".toptext")?.textContent;
+    const op = postNode.querySelector(".hnuser")?.textContent || "Unknown";
+    const postContent = postNode.querySelector(".toptext")?.textContent || "";
 
     console.log("[Feel HN] OP: " + op);
     console.log("[Feel HN] Post Content: " + postContent);
@@ -53,27 +60,36 @@ const main = () => {
     const commentTreeNode = document.querySelector(".comment-tree");
 
     if (!commentTreeNode) {
-        console.log("[Feel HN] No comment tree node was found.");
+        console.log("[Feel HN] No comment tree node found.");
         return;
     }
 
     const commentsNodeList = commentTreeNode.querySelectorAll(".athing.comtr");
 
     // Parse the comments
-    const comments = Array.from(commentsNodeList).map((commentNode) => ({
-        indent: parseInt(commentNode.querySelector(".ind").getAttribute("indent")),
-        id: commentNode.getAttribute("id"),
-        author: commentNode.querySelector(".comhead > .hnuser").textContent,
-        comment: commentNode.querySelector(".comment > .commtext").textContent,
-        replies: [],
-    }));
+    const comments = Array.from(commentsNodeList).map((commentNode) => {
+        const indent = commentNode.querySelector(".ind")?.getAttribute("indent") || "0";
+
+        return ({
+            indent: parseInt(indent),
+            id: commentNode.getAttribute("id") || "",
+            author: commentNode.querySelector(".comhead > .hnuser")?.textContent || "Unknown",
+            comment: commentNode.querySelector(".comment > .commtext")?.textContent || "",
+            replies: [],
+        });
+    });
 
     comments.forEach(({ id }) => {
         const commentNode = document.getElementById(id);
 
+        if (!commentNode) {
+            console.warn(`[Feel HN] Comment with ID ${id} not found.`);
+            return;
+        }
+
         const commentSentimentAnalysis = `TODO: SA for Comment ID #${id}`
 
-        commentNode.querySelector("td.default > div").insertAdjacentHTML("beforeend", `<b>${commentSentimentAnalysis}</b>`);
+        commentNode.querySelector("td.default > div")?.insertAdjacentHTML("beforeend", `<b>${commentSentimentAnalysis}</b>`);
     })
 
     // TODO: Run sentiment analysis considering replies

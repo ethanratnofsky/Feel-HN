@@ -1,15 +1,15 @@
 {
     "manifest_version": 3,
     "name": "Feel HN",
-    "version": "2024.4.13",
+    "version": "2024.4.15",
     "description": "Analyze the sentiments of users on a Hacker News discussion.",
     "content_scripts": [
         {
-            "js": [
-                "scripts/content.js"
-            ],
             "matches": [
                 "https://news.ycombinator.com/item?id=*"
+            ],
+            "js": [
+                "index.js"
             ]
         }
     ]
