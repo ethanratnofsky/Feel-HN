@@ -2,7 +2,7 @@ node_modules
 dist
 
 # Chromium Extension
-Feel-HN.crx
+*.crx
 
-# Extension private key
-Feel-HN.pem
+# Private key file
+*.pem
